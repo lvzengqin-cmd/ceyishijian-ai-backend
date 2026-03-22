@@ -386,10 +386,11 @@ def admin_dashboard():
                               recent_users=recent_users,
                               recent_trades=recent_trades)
     except Exception as e:
-        print(f"Dashboard error: {e}")
+        error_msg = f"Dashboard error: {e}"
+        print(error_msg)
         import traceback
         traceback.print_exc()
-        return jsonify({'error': 'Dashboard error', 'message': str(e)}), 500
+        return jsonify({'error': 'Dashboard error', 'message': str(e), 'traceback': traceback.format_exc()}), 500
 
 @app.route('/admin/users')
 @admin_required
