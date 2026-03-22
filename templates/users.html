@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理 - 事件AI量化{% endblock %}
+{% block header_title %}用户管理</block_title %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-users"></i> 用户列表</h3>
+        <div class="header-actions">
+            <span class="text-muted">共 {{ users.total }} 个用户</span>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>设备ID</th>
+                    <th>Webhook（做多）</th>
+                    <th>Webhook（做空）</th>
+                    <th>会员状态</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr>
+                    <td>#{{ user.id }}</td>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td>
+                        <span class="text-mono" title="{{ user.device_id }}">
+                            {{ user.device_id[:12] }}...
+                        </span>
+                    </td>
+                    <td>
+                        <div class="webhook-cell">
+                            <span class="text-mono webhook-id" id="webhook-buy-{{ user.id }}">
+                                {{ user.webhook_buy[:16] }}...
+                            </span>
+                            <button class="btn-icon" onclick="copyWebhook({{ user.id }}, 'buy')" title="复制做多Webhook">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="webhook-cell">
+                            <span class="text-mono webhook-id" id="webhook-sell-{{ user.id }}">
+                                {{ user.webhook_sell[:16] }}...
+                            </span>
+                            <button class="btn-icon" onclick="copyWebhook({{ user.id }}, 'sell')" title="复制做空Webhook">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        {% if user.expire_date %}
+                            {% if user.expire_date > now %}
+                                <span class="badge badge-success">有效至 {{ user.expire_date.strftime('%m-%d') }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">已过期</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge badge-warning">未设置</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="btn btn-sm">
+                            <i class="fas fa-eye"></i> 详情
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    {% if users.pages > 1 %}
+    <div class="pagination">
+        {% if users.has_prev %}
+            <a href="{{ url_for('admin_users', page=users.prev_num) }}" class="btn btn-sm">上一页</a>
+        {% else %}
+            <span class="btn btn-sm disabled">上一页</span>
+        {% endif %}
+        
+        <span class="page-info">第 {{ users.page }} / {{ users.pages }} 页</span>
+        
+        {% if users.has_next %}
+            <a href="{{ url_for('admin_users', page=users.next_num) }}" class="btn btn-sm">下一页</a>
+        {% else %}
+            <span class="btn btn-sm disabled">下一页</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyWebhook(userId, type) {
+    fetch(`/admin/api/user/${userId}/webhooks`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const webhookUrl = type === 'buy' ? data.webhook_buy : data.webhook_sell;
+                copyToClipboard(webhookUrl);
+            } else {
+                alert('获取Webhook失败');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('获取Webhook失败');
+        });
+}
+</script>
+
+{% set now = datetime.datetime.utcnow() %}
+{% endblock %}

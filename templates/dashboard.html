@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}控制台 - 事件AI量化{% endblock %}
+{% block header_title %}控制台</block_title %}
+
+{% block content %}
+<!-- 统计卡片 -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(0, 212, 170, 0.2); color: #00d4aa;">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_users }}</div>
+            <div class="stat-label">总用户数</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(88, 166, 255, 0.2); color: #58a6ff;">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.active_users }}</div>
+            <div class="stat-label">活跃用户</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(248, 81, 73, 0.2); color: #f85149;">
+            <i class="fas fa-user-times"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.expired_users }}</div>
+            <div class="stat-label">已过期</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(210, 153, 34, 0.2); color: #d29922;">
+            <i class="fas fa-exchange-alt"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.today_trades }}</div>
+            <div class="stat-label">今日交易</div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近注册用户 -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-user-plus"></i> 最近注册用户</h3>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-sm">查看全部</a>
+    </div>
+    
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>设备ID</th>
+                    <th>会员到期</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in recent_users %}
+                <tr>
+                    <td>#{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td><code>{{ user.device_id[:16] }}...</code></td>
+                    <td>
+                        {% if user.expire_date %}
+                            {% if user.expire_date > now %}
+                                <span class="badge badge-success">{{ user.expire_date.strftime('%Y-%m-%d') }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">已过期</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge badge-warning">未设置</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="btn btn-sm">
+                            <i class="fas fa-eye"></i> 查看
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 最近交易 -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-history"></i> 最近交易</h3>
+    </div>
+    
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>用户</th>
+                    <th>类型</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trade in recent_trades %}
+                <tr>
+                    <td>{{ trade.user.username }}</td>
+                    <td>
+                        {% if trade.trade_type == 'buy' %}
+                            <span class="badge badge-long">做多</span>
+                        {% else %}
+                            <span class="badge badge-short">做空</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ trade.amount }} USDT</td>
+                    <td>
+                        {% if trade.status == 'success' %}
+                            <span class="badge badge-success">成功</span>
+                        {% elif trade.status == 'failed' %}
+                            <span class="badge badge-danger">失败</span>
+                        {% else %}
+                            <span class="badge badge-warning">处理中</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ trade.created_at.strftime('%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% set now = datetime.datetime.utcnow() %}

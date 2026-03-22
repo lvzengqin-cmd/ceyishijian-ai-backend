@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - 用户详情 - 事件AI量化{% endblock %}
+{% block header_title %}用户详情</block_title %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-sm">
+        <i class="fas fa-arrow-left"></i> 返回列表
+    </a>
+    <h2>{{ user.username }}</h2>
+</div>
+
+<!-- 用户信息卡片 -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-user-circle"></i> 基本信息</h3>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">用户ID</div>
+            <div class="info-value">#{{ user.id }}</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">用户名</div>
+            <div class="info-value">{{ user.username }}</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">设备ID</div>
+            <div class="info-value text-mono">{{ user.device_id }}</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">注册时间</div>
+            <div class="info-value">{{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">最后登录</div>
+            <div class="info-value">{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else '未登录' }}</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">交易次数</div>
+            <div class="info-value">{{ user.trade_count }} 次</div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">账户状态</div>
+            <div class="info-value">
+                {% if user.is_active %}
+                    <span class="badge badge-success">正常</span>
+                {% else %}
+                    <span class="badge badge-danger">已禁用</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-label">会员到期</div>
+            <div class="info-value">
+                {% if user.expire_date %}
+                    {% if user.expire_date > now %}
+                        <span class="badge badge-success">{{ user.expire_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">已过期 ({{ user.expire_date.strftime('%Y-%m-%d') }})</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge badge-warning">未设置</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Webhook信息（重要！） -->
+<div class="card webhook-card">
+    <div class="card-header">
+        <h3><i class="fas fa-link"></i> Webhook 链接（用于配置飞书/其他平台）</h3>
+        <span class="badge badge-warning">机密信息</span>
+    </div>
+    
+    <div class="webhook-list">
+        <div class="webhook-item">
+            <div class="webhook-header">
+                <span class="badge badge-long">做多</span>
+                <span class="webhook-desc">用于接收做多信号的Webhook</span>
+            </div>
+            <div class="webhook-url">
+                <code id="webhook-buy-url">加载中...</code>
+                <button class="btn btn-primary" onclick="copyWebhook('buy')">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+        </div>
+        
+        <div class="webhook-item">
+            <div class="webhook-header">
+                <span class="badge badge-short">做空</span>
+                <span class="webhook-desc">用于接收做空信号的Webhook</span>
+            </div>
+            <div class="webhook-url">
+                <code id="webhook-sell-url">加载中...</code>
+                <button class="btn btn-primary" onclick="copyWebhook('sell')">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 会员管理 -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-crown"></i> 会员管理</h3>
+    </div>
+    
+    <div class="action-box">
+        <p>延长会员期限：</p>
+        <div class="action-buttons">
+            <button class="btn btn-sm" onclick="extendMembership(7)">+7天</button>
+            <button class="btn btn-sm" onclick="extendMembership(30)">+30天</button>
+            <button class="btn btn-sm" onclick="extendMembership(90)">+90天</button>
+            <button class="btn btn-sm" onclick="extendMembership(365)">+1年</button>
+        </div>
+    </div>
+</div>
+
+<!-- 交易记录 -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-history"></i> 交易记录（最近50条）</h3>
+    </div>
+    
+    {% if trades %}
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>类型</th>
+                    <th>交易对</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>消息</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trade in trades %}
+                <tr>
+                    <td>#{{ trade.id }}</td>
+                    <td>
+                        {% if trade.trade_type == 'buy' %}
+                            <span class="badge badge-long">做多</span>
+                        {% else %}
+                            <span class="badge badge-short">做空</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ trade.symbol }}</td>
+                    <td>{{ trade.amount }} USDT</td>
+                    <td>
+                        {% if trade.status == 'success' %}
+                            <span class="badge badge-success">成功</span>
+                        {% elif trade.status == 'failed' %}
+                            <span class="badge badge-danger">失败</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ trade.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ trade.message or '-' }}</td>
+                    <td>{{ trade.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>暂无交易记录</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// 加载Webhook信息
+fetch('/admin/api/user/{{ user.id }}/webhooks')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('webhook-buy-url').textContent = data.webhook_buy;
+            document.getElementById('webhook-sell-url').textContent = data.webhook_sell;
+        }
+    });
+
+// 复制Webhook
+function copyWebhook(type) {
+    const url = type === 'buy' 
+        ? document.getElementById('webhook-buy-url').textContent
+        : document.getElementById('webhook-sell-url').textContent;
+    copyToClipboard(url);
+}
+
+// 延长会员
+function extendMembership(days) {
+    if (!confirm(`确定要延长 ${days} 天会员期限吗？`)) {
+        return;
+    }
+    
+    fetch('/admin/api/user/{{ user.id }}/extend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ days: days })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('会员期限已延长');
+            location.reload();
+        } else {
+            alert('操作失败: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('操作失败');
+    });
+}
+</script>
+
+{% set now = datetime.datetime.utcnow() %}
+{% endblock %}

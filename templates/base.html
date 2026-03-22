@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}事件AI量化 - 管理后台{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {% if session.admin_id %}
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-robot"></i>
+            <span>事件AI量化</span>
+        </div>
+        
+        <ul class="nav-menu">
+            <li>
+                <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>控制台</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_users') }}" class="{% if request.endpoint == 'admin_users' %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>用户管理</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="main-content">
+        <header class="header">
+            <div class="header-title">{% block header_title %}管理后台{% endblock %}</div>
+            <div class="header-user">
+                <i class="fas fa-user-circle"></i>
+                <span>管理员</span>
+            </div>
+        </header>
+        
+        <main class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    <div class="auth-container">
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <script>
+        // 复制功能
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 备用方案
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('已复制到剪贴板');
+            });
+        }
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

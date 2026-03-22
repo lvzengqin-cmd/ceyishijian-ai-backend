@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}管理员登录 - 事件AI量化{% endblock %}
+
+{% block auth_content %}
+<div class="auth-box">
+    <div class="auth-logo">
+        <i class="fas fa-robot"></i>
+        <h1>事件AI量化</h1>
+        <p>管理后台</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin_login') }}" class="auth-form">
+        <div class="form-group">
+            <label><i class="fas fa-user"></i> 用户名</label>
+            <input type="text" name="username" placeholder="请输入管理员账号" required autofocus>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-lock"></i> 密码</label>
+            <input type="password" name="password" placeholder="请输入密码" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-sign-in-alt"></i> 登录
+        </button>
+    </form>    
+</div>
+
+<style>
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+.auth-box {
+    background: #21262d;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-logo i {
+    font-size: 48px;
+    color: #00d4aa;
+    margin-bottom: 16px;
+}
+
+.auth-logo h1 {
+    color: #ffffff;
+    font-size: 24px;
+    margin: 0;
+}
+
+.auth-logo p {
+    color: #8b949e;
+    margin: 8px 0 0 0;
+}
+
+.auth-form .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-form label {
+    display: block;
+    color: #c9d1d9;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.auth-form label i {
+    margin-right: 8px;
+    color: #00d4aa;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    background: #0d1117;
+    color: #ffffff;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: #00d4aa;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #00d4aa;
+    color: #000000;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background: #00b894;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.alert-error {
+    background: rgba(248, 81, 73, 0.2);
+    color: #f85149;
+    border: 1px solid #f85149;
+}
+</style>
+{% endblock %}
