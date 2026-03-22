@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}控制台 - 事件AI量化{% endblock %}
-{% block header_title %}控制台</block_title %}
+{% block header_title %}控制台{% endblock %}
 
 {% block content %}
 <!-- 统计卡片 -->
@@ -47,6 +47,9 @@
     </div>
 </div>
 
+{% set now = namespace() %}
+{% set now.datetime = datetime.datetime.utcnow() %}
+
 <!-- 最近注册用户 -->
 <div class="card">
     <div class="card-header">
@@ -74,7 +77,7 @@
                     <td><code>{{ user.device_id[:16] }}...</code></td>
                     <td>
                         {% if user.expire_date %}
-                            {% if user.expire_date > now %}
+                            {% if user.expire_date > datetime.datetime.utcnow() %}
                                 <span class="badge badge-success">{{ user.expire_date.strftime('%Y-%m-%d') }}</span>
                             {% else %}
                                 <span class="badge badge-danger">已过期</span>
@@ -142,5 +145,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% set now = datetime.datetime.utcnow() %}
