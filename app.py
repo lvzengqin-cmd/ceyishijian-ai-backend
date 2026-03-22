@@ -343,11 +343,12 @@ def admin_users():
     page = request.args.get('page', 1, type=int)
     per_page = 20
     
-    users = User.query.order_by(User.created_at.desc()).paginate(
+    # 兼容新版 Flask-SQLAlchemy
+    pagination = User.query.order_by(User.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    return render_template('users.html', users=users)
+    return render_template('users.html', users=pagination.items, pagination=pagination)
 
 @app.route('/admin/user/<int:user_id>')
 @admin_required
