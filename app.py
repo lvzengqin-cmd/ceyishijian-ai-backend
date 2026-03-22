@@ -503,5 +503,10 @@ def internal_error(error):
 # 初始化数据库（在导入时执行）
 init_database()
 
+# 添加模板全局变量
+@app.context_processor
+def inject_globals():
+    return dict(datetime=datetime)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

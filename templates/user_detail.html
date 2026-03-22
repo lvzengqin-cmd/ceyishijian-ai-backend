@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}{{ user.username }} - 用户详情 - 事件AI量化{% endblock %}
-{% block header_title %}用户详情</block_title %}
+{% set now = datetime.datetime.utcnow() %}
+
+{% block title %}{{ user.username }} - 用户详情 - 策奕事件AI量化{% endblock %}
+{% block header_title %}用户详情{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -234,5 +236,4 @@ function extendMembership(days) {
 }
 </script>
 
-{% set now = datetime.datetime.utcnow() %}
 {% endblock %}

@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}用户管理 - 事件AI量化{% endblock %}
-{% block header_title %}用户管理</block_title %}
+{% set now = datetime.datetime.utcnow() %}
+
+{% block title %}用户管理 - 策奕事件AI量化{% endblock %}
+{% block header_title %}用户管理{% endblock %}
 
 {% block content %}
 <div class="card">
@@ -118,5 +120,4 @@ function copyWebhook(userId, type) {
 }
 </script>
 
-{% set now = datetime.datetime.utcnow() %}
 {% endblock %}
