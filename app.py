@@ -143,6 +143,15 @@ def admin_required(f):
 
 # ============ API 接口 ============
 
+@app.route('/health')
+def health_check():
+    """健康检查端点"""
+    return jsonify({
+        'status': 'ok',
+        'version': '2026-03-23-v3',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
 @app.route('/api/register', methods=['POST'])
 def api_register():
     """用户注册"""
