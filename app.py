@@ -373,6 +373,7 @@ def admin_logout():
 def admin_dashboard():
     """管理后台首页"""
     try:
+        print("Dashboard route started...")
         stats = {
             'total_users': User.query.count(),
             'active_users': User.query.filter_by(is_active=True).count(),
@@ -382,17 +383,22 @@ def admin_dashboard():
             ).count(),
             'total_trades': TradeLog.query.count()
         }
+        print(f"Stats: {stats}")
         
         # 最近注册用户
         recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+        print(f"Recent users: {len(recent_users)}")
         
         # 最近交易
         recent_trades = TradeLog.query.order_by(TradeLog.created_at.desc()).limit(10).all()
+        print(f"Recent trades: {len(recent_trades)}")
         
-        return render_template('dashboard.html', 
+        result = render_template('dashboard.html', 
                               stats=stats, 
                               recent_users=recent_users,
                               recent_trades=recent_trades)
+        print("Dashboard rendered successfully")
+        return result
     except Exception as e:
         error_msg = f"Dashboard error: {e}"
         print(error_msg)
