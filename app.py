@@ -487,6 +487,17 @@ def admin_extend_user(user_id):
         print(f"Extend user error: {e}")
         return jsonify({'error': 'Failed to extend membership', 'message': str(e)}), 500
 
+# ============ 健康检查 ============
+
+@app.route('/health')
+def health_check():
+    """健康检查接口"""
+    return jsonify({
+        'status': 'ok',
+        'version': '2026-03-23-v4',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
 # ============ 主页 ============
 
 @app.route('/')
