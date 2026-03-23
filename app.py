@@ -43,6 +43,14 @@ app.config['JWT_EXPIRATION_HOURS'] = 24
 # 初始化数据库
 db.init_app(app)
 
+# 注入模板全局变量
+@app.context_processor
+def inject_globals():
+    return {
+        'datetime': datetime,
+        'now': datetime.utcnow()
+    }
+
 def init_database():
     """初始化数据库和默认数据"""
     try:
