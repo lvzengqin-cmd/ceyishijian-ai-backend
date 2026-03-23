@@ -143,15 +143,6 @@ def admin_required(f):
 
 # ============ API 接口 ============
 
-@app.route('/health')
-def health_check():
-    """健康检查端点"""
-    return jsonify({
-        'status': 'ok',
-        'version': '2026-03-23-v3',
-        'timestamp': datetime.utcnow().isoformat()
-    })
-
 @app.route('/api/register', methods=['POST'])
 def api_register():
     """用户注册"""
@@ -496,16 +487,6 @@ def admin_extend_user(user_id):
         print(f"Extend user error: {e}")
         return jsonify({'error': 'Failed to extend membership', 'message': str(e)}), 500
 
-# ============ 健康检查 ============
-
-@app.route('/health')
-def health_check():
-    """健康检查接口"""
-    return jsonify({
-        'status': 'ok',
-        'timestamp': datetime.utcnow().isoformat()
-    })
-
 # ============ 主页 ============
 
 @app.route('/')
@@ -526,11 +507,6 @@ def internal_error(error):
 
 # 初始化数据库（在导入时执行）
 init_database()
-
-# 添加模板全局变量
-@app.context_processor
-def inject_globals():
-    return dict(datetime=datetime)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
